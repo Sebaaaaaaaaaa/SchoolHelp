@@ -1,4 +1,4 @@
-package CsvModels;
+package DataModels;
 
 import Utils.AccountRoles;
 
@@ -10,6 +10,7 @@ public class AccountModel {
     private final  String name;
     private final String surname;    
     private final AccountRoles role;
+    private final boolean isActive;
     
     public AccountModel(int accountId, String username, String password, String name, String surname, AccountRoles role) {
         this.accountId = accountId;
@@ -18,6 +19,7 @@ public class AccountModel {
         this.name = name;
         this.surname = surname;
         this.role = role;
+        this.isActive = true;
     }
 
     public int getAccountId() {
@@ -42,5 +44,9 @@ public class AccountModel {
 
     public AccountRoles getRole() {
         return role;
+    }
+
+    public boolean isActive() {
+        return isActive;
     }
 }

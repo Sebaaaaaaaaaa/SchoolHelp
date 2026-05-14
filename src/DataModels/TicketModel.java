@@ -1,4 +1,4 @@
-package CsvModels;
+package DataModels;
 
 import Utils.PriorityLevels;
 import Utils.TicketStates;

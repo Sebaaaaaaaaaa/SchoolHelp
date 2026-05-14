@@ -1,4 +1,4 @@
-package CsvModels;
+package DataModels;
 
 public class InternalNoteModel {
     private final String noteId;

@@ -1,4 +1,4 @@
-package CsvModels;
+package DataModels;
 
 public class MessageModel {
     private final String messageId;

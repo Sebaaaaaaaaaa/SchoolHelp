@@ -1,4 +1,4 @@
-package CsvModels;
+package DataModels;
 
 public class FeedbackModel {
     private final String feedbackId;
