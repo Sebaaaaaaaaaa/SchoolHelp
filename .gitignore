@@ -1,0 +1,5 @@
+# Compilati Java
+*.class
+
+# Directory di output di build
+build/
