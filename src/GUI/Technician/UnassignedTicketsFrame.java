@@ -7,28 +7,29 @@ import java.awt.*;
 public class UnassignedTicketsFrame extends JFrame {
 
     public UnassignedTicketsFrame() {
-        setTitle("School Help – Unassigned Tickets");
+        setTitle("School Help - Unassigned Tickets");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(580, 340);
+        setSize(700, 450);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        JPanel p = new JPanel(new BorderLayout(0, 10));
-        p.setBackground(new Color(212, 208, 200));
-        p.setBorder(BorderFactory.createEmptyBorder(16, 18, 15, 18));
+        JPanel p = new JPanel(new BorderLayout(0, 15));
+        p.setBackground(Color.WHITE);
+        p.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
         JPanel header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-        header.setBackground(new Color(212, 208, 200));
+        header.setBackground(Color.WHITE);
         JLabel title = new JLabel("Unassigned Tickets");
-        title.setFont(new Font("SansSerif", Font.BOLD, 18));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setForeground(new Color(40, 40, 40));
         title.setAlignmentX(LEFT_ALIGNMENT);
         JLabel sub = new JLabel("Select a ticket and click \"Take Charge\" to assign it to yourself");
-        sub.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        sub.setForeground(new Color(60,60,60));
+        sub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        sub.setForeground(new Color(120, 120, 120));
         sub.setAlignmentX(LEFT_ALIGNMENT);
         header.add(title);
-        header.add(Box.createVerticalStrut(3));
+        header.add(Box.createVerticalStrut(5));
         header.add(sub);
 
         String[] cols = {"ID", "Title", "Category", "Priority", "Date"};
@@ -42,25 +43,29 @@ public class UnassignedTicketsFrame extends JFrame {
         JTable table = new JTable(new DefaultTableModel(data, cols) {
             public boolean isCellEditable(int r, int c) { return false; }
         });
-        table.setRowHeight(22);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
+        table.setRowHeight(30);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setForeground(new Color(60, 60, 60));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.getTableHeader().setBackground(new Color(245, 245, 245));
+        table.getTableHeader().setForeground(new Color(40, 40, 40));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createLineBorder(new Color(128,128,128)));
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        scroll.getViewport().setBackground(Color.WHITE);
 
-        JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        btns.setBackground(new Color(212, 208, 200));
-        btns.add(btn("Take Charge"));
-        btns.add(btn("Back"));
+        JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        btns.setBackground(Color.WHITE);
+        btns.add(btn("Take Charge", new Color(0, 120, 215)));
+        btns.add(btn("Back", new Color(150, 150, 150)));
 
         JLabel footer = new JLabel("Laboratory: MULTI 2");
-        footer.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        footer.setForeground(new Color(80,80,80));
+        footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        footer.setForeground(new Color(150, 150, 150));
         footer.setHorizontalAlignment(SwingConstants.CENTER);
 
         JPanel bottom = new JPanel(new BorderLayout());
-        bottom.setBackground(new Color(212, 208, 200));
+        bottom.setBackground(Color.WHITE);
         bottom.add(btns, BorderLayout.WEST);
         bottom.add(footer, BorderLayout.SOUTH);
 
@@ -70,7 +75,16 @@ public class UnassignedTicketsFrame extends JFrame {
         add(p);
     }
 
-    private JButton btn(String t) { JButton b = new JButton(t); b.setFont(new Font("SansSerif", Font.PLAIN, 12)); b.setBackground(new Color(212, 208, 200)); b.setFocusPainted(false); return b; }
+    private JButton btn(String t, Color bg) { 
+        JButton b = new JButton(t); 
+        b.setFont(new Font("Segoe UI", Font.BOLD, 14)); 
+        b.setBackground(bg); 
+        b.setForeground(Color.WHITE); 
+        b.setFocusPainted(false); 
+        b.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return b; 
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new UnassignedTicketsFrame().setVisible(true));

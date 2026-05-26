@@ -6,28 +6,33 @@ import javax.swing.*;
 public class AddCommentFrame extends JFrame {
 
     public AddCommentFrame() {
-        setTitle("School Help");
+        setTitle("School Help - Add Comment");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(400, 220);
+        setSize(500, 300);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        JPanel p = new JPanel(new BorderLayout(0, 10));
-        p.setBackground(new Color(212, 208, 200));
-        p.setBorder(BorderFactory.createEmptyBorder(14, 16, 14, 16));
+        JPanel p = new JPanel(new BorderLayout(0, 15));
+        p.setBackground(Color.WHITE);
+        p.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
         JLabel title = new JLabel("Add Comment");
-        title.setFont(new Font("SansSerif", Font.BOLD, 18));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setForeground(new Color(40, 40, 40));
+        title.setAlignmentX(LEFT_ALIGNMENT);
 
         JTextArea area = new JTextArea();
         area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        area.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         JScrollPane scroll = new JScrollPane(area);
-        scroll.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 200), 1));
+        scroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)), BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 
         JPanel btns = new JPanel(new BorderLayout());
-        btns.setBackground(new Color(212, 208, 200));
-        btns.add(btn("Confirm"), BorderLayout.WEST);
-        btns.add(btn("Cancel"),  BorderLayout.EAST);
+        btns.setBackground(Color.WHITE);
+        btns.add(btn("Confirm", new Color(0, 120, 215)), BorderLayout.WEST);
+        btns.add(btn("Cancel", new Color(150, 150, 150)),  BorderLayout.EAST);
 
         p.add(title,  BorderLayout.NORTH);
         p.add(scroll, BorderLayout.CENTER);
@@ -36,11 +41,14 @@ public class AddCommentFrame extends JFrame {
         add(p);
     }
 
-    private JButton btn(String text) {
+    private JButton btn(String text, Color bg) {
         JButton b = new JButton(text);
-        b.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        b.setBackground(new Color(212, 208, 200));
+        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        b.setBackground(bg);
+        b.setForeground(Color.WHITE);
         b.setFocusPainted(false);
+        b.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return b;
     }
 
