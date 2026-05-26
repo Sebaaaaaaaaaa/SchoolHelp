@@ -2,20 +2,20 @@ package DataModels;
 
 import Utils.PriorityLevels;
 import Utils.TicketStates;
-import javax.xml.crypto.Data;
+import java.util.Date;
 
 public class TicketModel {
     private final String ticketId;
     private final String title;
     private final String description;
     private final PriorityLevels priority;
-    private final TicketStates state;
-    private final Data createdAt;
+    private TicketStates state;
+    private final Date createdAt;
     private final int userId;
-    private final int technicianId;
+    private int technicianId;
 
     public TicketModel(String ticketId, String title, String description, PriorityLevels priority, 
-        TicketStates state, Data createdAt, int userId, int technicianId) {
+        TicketStates state, Date createdAt, int userId, int technicianId) {
         this.ticketId = ticketId;
         this.title = title;
         this.description = description;
@@ -46,7 +46,7 @@ public class TicketModel {
         return state;
     }
 
-    public Data getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
@@ -57,4 +57,8 @@ public class TicketModel {
     public int getTechnicianId() {
         return technicianId;
     }
+
+    public void setState(TicketStates s) { this.state = s; }
+    
+    public void setTechnicianId(int id) { this.technicianId = id; }
 }
