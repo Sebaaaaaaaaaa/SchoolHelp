@@ -1,9 +1,9 @@
 package GUI.User;
 
-import java.awt.*;
-import javax.swing.*;
 import ApplicationServices.AuthenticationService;
 import DataModels.AccountModel;
+import java.awt.*;
+import javax.swing.*;
 
 public class LoginFrame extends JFrame {
 
@@ -73,15 +73,9 @@ public class LoginFrame extends JFrame {
             AccountModel account = authService.login(username, password);
             if (account != null) {
                 switch (account.getRole()) {
-                    case ADMIN:
-                        new GUI.Admin.AdminDashboard().setVisible(true);
-                        break;
-                    case STUDENT:
-                        new GUI.User.UserDashboard().setVisible(true);
-                        break;
-                    case TECHNICIAN:
-                        new GUI.Technician.TechnicianDashboard().setVisible(true);
-                        break;
+                    case ADMIN -> new GUI.Admin.AdminDashboard().setVisible(true);
+                    case STUDENT -> new GUI.User.UserDashboard().setVisible(true);
+                    case TECHNICIAN -> new GUI.Technician.TechnicianDashboard().setVisible(true);
                 }
                 this.dispose();
             } else {
