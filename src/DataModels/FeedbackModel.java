@@ -5,12 +5,14 @@ public class FeedbackModel {
     private final String ticketId;
     private final String userId;
     private final String rating;
+    private final String review;
 
-    public FeedbackModel(String feedbackId, String ticketId, String userId, String rating) {
+    public FeedbackModel(String feedbackId, String ticketId, String userId, String rating, String review) {
         this.feedbackId = feedbackId;
         this.ticketId = ticketId;
         this.userId = userId;
         this.rating = rating;
+        this.review = review;
     }
 
     public String getFeedbackId() {
@@ -27,5 +29,9 @@ public class FeedbackModel {
 
     public String getRating() {
         return rating;
+    }
+
+    public String getReview() {
+        return review;
     }
 }

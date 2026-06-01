@@ -1,14 +1,16 @@
 package GUI.User;
 
+import ApplicationServices.TicketService;
+
 import java.awt.*;
 import javax.swing.*;
 
 public class GiveFeedbackFrame extends JFrame {
 
-    public GiveFeedbackFrame() {
+    public GiveFeedbackFrame(String ticketId) {
         setTitle("School Help - Give Feedback");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(450, 360);
+        setSize(450, 380);
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -36,25 +38,53 @@ public class GiveFeedbackFrame extends JFrame {
         JScrollPane scroll = new JScrollPane(area);
         scroll.setAlignmentX(LEFT_ALIGNMENT);
         scroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
-        scroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)), BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        scroll.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 
         JLabel starsLbl = new JLabel("Stars");
         starsLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
         starsLbl.setForeground(new Color(80, 80, 80));
         starsLbl.setAlignmentX(LEFT_ALIGNMENT);
 
-        JComboBox<String> stars = new JComboBox<>(new String[]{"1", "2", "3", "4", "5"});
+        JComboBox<String> stars = new JComboBox<>(new String[] { "1", "2", "3", "4", "5" });
         stars.setSelectedItem("4");
         stars.setBackground(Color.WHITE);
         stars.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         stars.setMaximumSize(new Dimension(100, 36));
         stars.setAlignmentX(LEFT_ALIGNMENT);
 
+        JButton submitBtn = btn("Submit Feedback", new Color(0, 120, 215));
+        submitBtn.addActionListener(e -> {
+            String reviewText = area.getText().trim();
+            if (reviewText.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please write a review before submitting.",
+                        "Review Required",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String selectedRating = (String) stars.getSelectedItem();
+
+            TicketService.saveFeedback(ticketId, "1", selectedRating, reviewText);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Thank you! Your feedback has been saved.",
+                    "Feedback Submitted",
+                    JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        });
+
+        JButton cancelBtn = btn("Cancel", new Color(150, 150, 150));
+        cancelBtn.addActionListener(e -> dispose());
+
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btns.setBackground(Color.WHITE);
         btns.setAlignmentX(LEFT_ALIGNMENT);
         btns.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        btns.add(btn("Submit Feedback", new Color(0, 120, 215)));
+        btns.add(submitBtn);
+        btns.add(cancelBtn);
 
         p.add(title);
         p.add(Box.createVerticalStrut(20));
@@ -70,7 +100,7 @@ public class GiveFeedbackFrame extends JFrame {
 
         add(p);
     }
-    
+
     private JButton btn(String text, Color bg) {
         JButton b = new JButton(text);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -83,7 +113,6 @@ public class GiveFeedbackFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GiveFeedbackFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> new GiveFeedbackFrame("test-ticket-id").setVisible(true));
     }
 }
-

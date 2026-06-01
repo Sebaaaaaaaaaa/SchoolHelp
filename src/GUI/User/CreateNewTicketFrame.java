@@ -1,5 +1,7 @@
 package GUI.User;
 
+import ApplicationServices.TicketService;
+import Utils.PriorityLevels;
 import java.awt.*;
 import javax.swing.*;
 
@@ -36,7 +38,9 @@ public class CreateNewTicketFrame extends JFrame {
         titleField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         titleField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         titleField.setAlignmentX(LEFT_ALIGNMENT);
-        titleField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)), BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        titleField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
 
         JLabel descLbl = new JLabel("Description");
         descLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -51,7 +55,9 @@ public class CreateNewTicketFrame extends JFrame {
         JScrollPane descScroll = new JScrollPane(descArea);
         descScroll.setAlignmentX(LEFT_ALIGNMENT);
         descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
-        descScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)), BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        descScroll.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 
         JLabel prioLbl = new JLabel("Priority");
         prioLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -64,12 +70,36 @@ public class CreateNewTicketFrame extends JFrame {
         prioCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         prioCombo.setAlignmentX(LEFT_ALIGNMENT);
 
+        JButton createBtn = btn("Create Ticket", new Color(0, 120, 215));
+        createBtn.addActionListener(e -> {
+            String titleText = titleField.getText().trim();
+            String descText = descArea.getText().trim();
+            String selectedPrio = (String) prioCombo.getSelectedItem();
+
+            if (titleText.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Please enter a title.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            PriorityLevels priority = mapPriority(selectedPrio);
+            TicketService.createTicket(titleText, descText, priority, 1);
+
+            JOptionPane.showMessageDialog(this,
+                    "Ticket \"" + titleText + "\" created successfully!",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        });
+
+        JButton cancelBtn = btn("Cancel", new Color(150, 150, 150));
+        cancelBtn.addActionListener(e -> dispose());
+
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btns.setBackground(Color.WHITE);
         btns.setAlignmentX(LEFT_ALIGNMENT);
         btns.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        btns.add(btn("Create Ticket", new Color(0, 120, 215)));
-        btns.add(btn("Cancel", new Color(150, 150, 150)));
+        btns.add(createBtn);
+        btns.add(cancelBtn);
 
         p.add(title);
         p.add(Box.createVerticalStrut(5));
@@ -90,6 +120,21 @@ public class CreateNewTicketFrame extends JFrame {
         p.add(btns);
 
         add(p);
+    }
+
+    private PriorityLevels mapPriority(String selected) {
+        switch (selected) {
+            case "High":
+                return PriorityLevels.HIGH;
+            case "Medium":
+                return PriorityLevels.MEDIUM;
+            case "Low":
+                return PriorityLevels.LOW;
+            case "Critical":
+                return PriorityLevels.URGENT;
+            default:
+                return PriorityLevels.MEDIUM;
+        }
     }
 
     private JButton btn(String text, Color bg) {
