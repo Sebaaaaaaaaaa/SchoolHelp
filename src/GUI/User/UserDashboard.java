@@ -1,14 +1,31 @@
 package GUI.User;
 
+import ApplicationServices.TicketService;
+import DataModels.AccountModel;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
 public class UserDashboard extends JFrame {
 
-    public UserDashboard() {
+    private final JFrame owner;
+    private final TicketService ticketService;
+    private final AccountModel account;
+    
+    public UserDashboard(JFrame owner, TicketService ticketService, AccountModel account) {
+        
+        this.owner = owner;
+        this.ticketService = ticketService;
+        this.account = account;
+        
         setTitle("School Help - User Dashboard");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                owner.setVisible(true);
+                dispose();
+            }
+        });
         setSize(320, 320);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -29,10 +46,14 @@ public class UserDashboard extends JFrame {
         sub.setAlignmentX(CENTER_ALIGNMENT);
 
         JButton btnCreate = btn("Create New Ticket");
-        btnCreate.addActionListener(e -> new CreateNewTicketFrame().setVisible(true));
+        btnCreate.addActionListener(e -> 
+                new CreateNewTicketDialog(this, ticketService, account).setVisible(true)
+        );
 
         JButton btnView = btn("View Opened Tickets");
-        btnView.addActionListener(e -> new OpenedTicketsFrame().setVisible(true));
+        btnView.addActionListener(e -> 
+                new OpenedTicketsDialog(this, ticketService, account).setVisible(true)
+        );
 
         JLabel footer = new JLabel("Laboratory: MULTI 2");
         footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
@@ -66,6 +87,6 @@ public class UserDashboard extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new UserDashboard().setVisible(true));
+        SwingUtilities.invokeLater(() -> new UserDashboard(null, null, null).setVisible(true));
     }
 }

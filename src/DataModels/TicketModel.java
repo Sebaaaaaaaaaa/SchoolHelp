@@ -2,31 +2,48 @@ package DataModels;
 
 import Utils.PriorityLevels;
 import Utils.TicketStates;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class TicketModel {
-    private final String ticketId;
+    
+    private static int NEXT_ID = 0;
+    
+    private final int ticketId;
     private final String title;
     private final String description;
-    private final PriorityLevels priority;
+    private PriorityLevels priority;
     private TicketStates state;
-    private final Date createdAt;
-    private final int userId;
-    private int technicianId;
+    private final String createdAt;
+    private final AccountModel userAccount;
+    private AccountModel technicianAccount;
+    private FeedbackModel feedback;
+    private InternalNoteModel internalNote;
+    private final List<MessageModel> messages;
 
-    public TicketModel(String ticketId, String title, String description, PriorityLevels priority, 
-        TicketStates state, Date createdAt, int userId, int technicianId) {
-        this.ticketId = ticketId;
+    public TicketModel(String title, String description, PriorityLevels priority, AccountModel userAccount) {
+        this.ticketId = NEXT_ID;
+        NEXT_ID++;
         this.title = title;
         this.description = description;
         this.priority = priority;
-        this.state = state;
-        this.createdAt = createdAt;
-        this.userId = userId;
-        this.technicianId = technicianId;
+        this.state = TicketStates.OPEN;
+        
+        Date now = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = format.format(now);
+        this.createdAt = formattedDate;
+        
+        this.userAccount = userAccount;
+        this.technicianAccount = null;
+        this.feedback = null;
+        this.internalNote = null;
+        this.messages = new ArrayList<>();
     }
 
-    public String getTicketId() {
+    public int getTicketId() {
         return ticketId;
     }
 
@@ -46,19 +63,41 @@ public class TicketModel {
         return state;
     }
 
-    public Date getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public int getUserId() {
-        return userId;
+    public AccountModel getUserAccount() {
+        return userAccount;
     }
 
-    public int getTechnicianId() {
-        return technicianId;
+    public AccountModel getTechnicianAccount() {
+        return technicianAccount;
     }
 
-    public void setState(TicketStates s) { this.state = s; }
+    public void setState(TicketStates state) { this.state = state; }
+       
+    public void setFeedBack(FeedbackModel feedback) { this.feedback = feedback; }
+
+    public FeedbackModel getFeedback() { return this.feedback; }
     
-    public void setTechnicianId(int id) { this.technicianId = id; }
+    public void addMessage(MessageModel message) {messages.add(message);}
+    
+    public void setTechnician(AccountModel technicianAccount) {this.technicianAccount = technicianAccount;}
+
+    public InternalNoteModel getInternalNote() {
+        return internalNote;
+    }
+
+    public void setInternalNote(InternalNoteModel internalNote) {
+        this.internalNote = internalNote;
+    }
+    
+    public boolean isOpen() {
+        return (state != TicketStates.CLOSED);
+    }
+
+    public void setPriority(PriorityLevels priority) {
+        this.priority = priority;
+    }
 }

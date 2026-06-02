@@ -1,13 +1,24 @@
 package GUI.Admin;
 
+import ApplicationServices.AdministrationService;
+import ApplicationServices.TicketService;
 import java.awt.*;
 import javax.swing.*;
 
-public class StatisticsOverviewFrame extends JFrame {
+public class StatisticsOverviewDialog extends JDialog {
+    
+    private final JFrame owner;
+    private final AdministrationService adminServices;
+    private final TicketService ticketService;
 
-    public StatisticsOverviewFrame() {
-        setTitle("School Help - Statistics Overview");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    public StatisticsOverviewDialog(JFrame owner, AdministrationService adminServices, TicketService ticketService) {
+        super(owner, "School Help - Statistics Overview", true);
+        
+        this.owner = owner;
+        this.adminServices = adminServices;
+        this.ticketService = ticketService;
+        
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(460, 320);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -30,18 +41,22 @@ public class StatisticsOverviewFrame extends JFrame {
         grid.setBackground(Color.WHITE);
         grid.setAlignmentX(LEFT_ALIGNMENT);
         grid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
-        grid.add(statBlock("Active Tickets",  "2"));
-        grid.add(statBlock("Closed Tickets",  "1"));
-        grid.add(statBlock("On-Hold Tickets", "0"));
-        grid.add(statBlock("Students",        "34"));
-        grid.add(statBlock("Operators",       "3"));
-        grid.add(statBlock("Administrators",  "2"));
+        grid.add(statBlock("Active Tickets",  ticketService.getActiveTickets()));
+        grid.add(statBlock("Closed Tickets",  ticketService.getClosedTickets()));
+        grid.add(statBlock("On-Hold Tickets", ticketService.getTicketsOnHold()));
+        grid.add(statBlock("Students",        adminServices.getStudents()));
+        grid.add(statBlock("Operators",       adminServices.getTechnicians()));
+        grid.add(statBlock("Administrators",  adminServices.getAdmins()));
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         btns.setBackground(Color.WHITE); 
         btns.setAlignmentX(LEFT_ALIGNMENT); 
         btns.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        JButton cancel = new JButton("Cancel"); 
+        JButton cancel = new JButton("Cancel");
+        cancel.addActionListener(e -> {
+            owner.setVisible(true);
+            dispose();
+        });
         cancel.setFont(new Font("Segoe UI", Font.BOLD, 14)); 
         cancel.setBackground(new Color(150, 150, 150)); 
         cancel.setForeground(Color.WHITE);
@@ -83,7 +98,7 @@ public class StatisticsOverviewFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new StatisticsOverviewFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> new StatisticsOverviewDialog(null, null, null).setVisible(true));
     }
 }
 

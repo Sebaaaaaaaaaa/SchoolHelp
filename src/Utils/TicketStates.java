@@ -1,18 +1,18 @@
 package Utils;
 
 public enum TicketStates {
-    OPEN(1),
-    IN_PROGRESS(2),
-    RESOLVED(3),
-    CLOSED(4);
+    OPEN("Open"),
+    IN_PROGRESS("In progress"),
+    WAITING("Waiting"),
+    CLOSED("Closed");
 
-    private final int state;
+    private final String state;
 
-    TicketStates(int state) {
+    TicketStates(String state) {
         this.state = state;
     }
 
-    public int getState() {
+    public String getState() {
         return state;
     }
 }

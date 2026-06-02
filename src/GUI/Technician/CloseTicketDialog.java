@@ -3,6 +3,7 @@ package GUI.Technician;
 import java.awt.*;
 import javax.swing.*;
 
+@Deprecated
 public class CloseTicketDialog extends JDialog {
 
     public CloseTicketDialog(Frame owner) {

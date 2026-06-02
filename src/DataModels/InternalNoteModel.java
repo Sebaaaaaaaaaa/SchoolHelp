@@ -1,30 +1,41 @@
 package DataModels;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class InternalNoteModel {
-    private final String noteId;
-    private final String ticketId;
-    private final String technicianId;
+    
+    private static int NEXT_ID = 0;
+    
+    private final int noteId;
+    private final TicketModel ticket;
+    private final AccountModel technicianAccount;
     private final String content;
     private final String createdAt;
 
-    public InternalNoteModel(String noteId, String ticketId, String technicianId, String content, String createdAt) {
-        this.noteId = noteId;
-        this.ticketId = ticketId;
-        this.technicianId = technicianId;
+    public InternalNoteModel(TicketModel ticket, AccountModel technicianAccount, String content) {
+        this.noteId = NEXT_ID;
+        NEXT_ID++;
+        this.ticket = ticket;
+        this.technicianAccount = technicianAccount;
         this.content = content;
-        this.createdAt = createdAt;
+        
+        Date now = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = format.format(now);
+        this.createdAt = formattedDate;
     }
 
-    public String getNoteId() {
+    public int getNoteId() {
         return noteId;
     }
 
-    public String getTicketId() {
-        return ticketId;
+    public TicketModel getTicket() {
+        return ticket;
     }
 
-    public String getTechnicianId() {
-        return technicianId;
+    public AccountModel getTechnician() {
+        return technicianAccount;
     }
 
     public String getContent() {

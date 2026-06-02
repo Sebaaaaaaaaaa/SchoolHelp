@@ -1,5 +1,9 @@
 package GUI.Technician;
 
+import ApplicationServices.TicketService;
+import DataModels.AccountModel;
+import DataModels.TechnicianTicketsTableModel;
+import DataModels.TicketModel;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
@@ -7,8 +11,9 @@ import javax.swing.table.*;
 public class MyTicketsDialog extends JDialog {
 
     private Frame owner;
+    private JTable table;
     
-    public MyTicketsDialog(Frame owner) {
+    public MyTicketsDialog(Frame owner, TicketService ticketService, AccountModel account) {
         super(owner, "School Help - My Tickets", true);
         
         this.owner = owner;
@@ -40,19 +45,7 @@ public class MyTicketsDialog extends JDialog {
         header.add(Box.createVerticalStrut(5));
         header.add(sub);
 
-        String[] cols = {"ID", "Title", "Category", "Priority", "Status"};
-        Object[][] data = {
-            {"#011", "No internet room 5", "Network",  "High",   "In lavorazione"},
-            {"#012", "Keyboard broken",    "Hardware", "Low",    "In attesa"},
-            {"#013", "Excel not opening",  "Software", "Medium", "In lavorazione"},
-        };
-
-        JTable table = new JTable(new DefaultTableModel(data, cols) {
-            @Override
-            public boolean isCellEditable(int r, int c) {
-                return false;
-            }
-        });
+        table = new JTable(new TechnicianTicketsTableModel(ticketService.getTechnicianTickets(account.getAccountId())));
 
         table.setRowHeight(30);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -68,8 +61,8 @@ public class MyTicketsDialog extends JDialog {
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btns.setBackground(Color.WHITE);
-        btns.add(btn("Open Ticket", new Color(0, 120, 215)));
-        btns.add(btn("Back", new Color(150, 150, 150)));
+        btns.add(btn("Open Ticket", new Color(0, 120, 215), table));
+        btns.add(btn("Back", new Color(150, 150, 150), null));
 
         JLabel footer = new JLabel("Laboratory: MULTI 2");
         footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
@@ -88,7 +81,7 @@ public class MyTicketsDialog extends JDialog {
         add(p);
     }
 
-    private JButton btn(String t, Color bg) {
+    private JButton btn(String t, Color bg, JTable table) {
         JButton b = new JButton(t);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setBackground(bg);
@@ -99,7 +92,16 @@ public class MyTicketsDialog extends JDialog {
         
         if (t.equals("Open Ticket")) {
             b.addActionListener(e -> {
-                new TicketDetailDialog(null, "11").setVisible(true);
+                int row = table.getSelectedRow();
+
+                if (row != -1) {
+                    TicketModel ticket = ((TechnicianTicketsTableModel) table.getModel()).getTicketAt(row);
+                    new TicketDetailDialog(this, ticket).setVisible(true);
+                    ((TechnicianTicketsTableModel) table.getModel()).refresh();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Select a Ticket", "Selection Failed",
+                        JOptionPane.ERROR_MESSAGE);
+                }
             });
         } else {
             b.addActionListener(e -> {
@@ -113,7 +115,7 @@ public class MyTicketsDialog extends JDialog {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            MyTicketsDialog dialog = new MyTicketsDialog(null);
+            MyTicketsDialog dialog = new MyTicketsDialog(null, null, null);
             dialog.setVisible(true);
         });
     }

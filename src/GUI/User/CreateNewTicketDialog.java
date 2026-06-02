@@ -1,15 +1,22 @@
 package GUI.User;
 
 import ApplicationServices.TicketService;
+import DataModels.AccountModel;
 import Utils.PriorityLevels;
 import java.awt.*;
 import javax.swing.*;
 
-public class CreateNewTicketFrame extends JFrame {
+public class CreateNewTicketDialog extends JDialog {
+    
+    private final JFrame owner;
 
-    public CreateNewTicketFrame() {
+    public CreateNewTicketDialog(JFrame owner, TicketService ticketService, AccountModel account) {
+        super(owner, "School Help - Create Ticket", true);
+        
+        this.owner = owner;
+        
         setTitle("School Help - Create Ticket");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(500, 500);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -81,18 +88,30 @@ public class CreateNewTicketFrame extends JFrame {
                         "Please enter a title.", "Validation Error", JOptionPane.WARNING_MESSAGE);
                 return;
             }
+            
+            if (descText.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Please enter a description.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
             PriorityLevels priority = mapPriority(selectedPrio);
-            TicketService.createTicket(titleText, descText, priority, 1);
+            
+            ticketService.createTicket(titleText, descText, priority, account);
 
             JOptionPane.showMessageDialog(this,
                     "Ticket \"" + titleText + "\" created successfully!",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+            owner.setVisible(true);
             dispose();
         });
 
         JButton cancelBtn = btn("Cancel", new Color(150, 150, 150));
-        cancelBtn.addActionListener(e -> dispose());
+        cancelBtn.addActionListener(e -> {
+             owner.setVisible(true);
+             dispose();
+        });
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btns.setBackground(Color.WHITE);
@@ -149,6 +168,6 @@ public class CreateNewTicketFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new CreateNewTicketFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> new CreateNewTicketDialog(null, null, null).setVisible(true));
     }
 }

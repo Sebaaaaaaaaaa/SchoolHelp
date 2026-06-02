@@ -1,6 +1,7 @@
 package GUI.User;
 
 import ApplicationServices.TicketService;
+import DataModels.AccountModel;
 import DataModels.TicketModel;
 import Utils.TicketStates;
 
@@ -10,19 +11,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.*;
 
-public class OpenedTicketsFrame extends JFrame {
+public class OpenedTicketsDialog extends JDialog{
+    
+    private final JFrame owner;
+    private final AccountModel account;
+    private final TicketService ticketService;
+    private final List<TicketModel> userTickets;
 
-    public OpenedTicketsFrame() {
-        setTitle("School Help - Opened Tickets");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    public OpenedTicketsDialog(JFrame owner, TicketService ticketService, AccountModel account) {
+        super(owner, "School Help - Opened Tickets", true);
+        
+        this.owner = owner;
+        this.account = account;
+        this.ticketService = ticketService;
+        this.userTickets = ticketService.getTicketsByUser(account);
+        
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(650, 520);
         setLocationRelativeTo(null);
         setResizable(false);
-
-        List<TicketModel> tickets = TicketService.getTickets().stream()
-                .filter(t -> t.getState() != TicketStates.CLOSED)
-                .collect(Collectors.toList());
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy, hh:mm a");
 
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -34,7 +41,7 @@ public class OpenedTicketsFrame extends JFrame {
         title.setForeground(new Color(40, 40, 40));
         title.setAlignmentX(LEFT_ALIGNMENT);
 
-        JLabel sub = new JLabel(tickets.size() + " ticket(s) total");
+        JLabel sub = new JLabel(userTickets.size() + " ticket(s) total");
         sub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         sub.setForeground(new Color(120, 120, 120));
         sub.setAlignmentX(LEFT_ALIGNMENT);
@@ -51,7 +58,7 @@ public class OpenedTicketsFrame extends JFrame {
         p.add(sep);
         p.add(Box.createVerticalStrut(20));
 
-        if (tickets.isEmpty()) {
+        if (userTickets.isEmpty()) {
             JLabel empty = new JLabel("No tickets found.");
             empty.setFont(new Font("Segoe UI", Font.ITALIC, 14));
             empty.setForeground(new Color(160, 160, 160));
@@ -59,8 +66,8 @@ public class OpenedTicketsFrame extends JFrame {
             p.add(empty);
             p.add(Box.createVerticalStrut(20));
         } else {
-            for (TicketModel ticket : tickets) {
-                p.add(buildTicketCard(ticket, sdf));
+            for (TicketModel ticket : userTickets) {
+                p.add(buildTicketCard(ticket));
                 p.add(Box.createVerticalStrut(15));
             }
         }
@@ -80,7 +87,7 @@ public class OpenedTicketsFrame extends JFrame {
         add(scroll);
     }
 
-    private JPanel buildTicketCard(TicketModel ticket, SimpleDateFormat sdf) {
+    private JPanel buildTicketCard(TicketModel ticket) {
         JPanel card = new JPanel(new BorderLayout(15, 0));
         card.setBackground(Color.WHITE);
         card.setAlignmentX(LEFT_ALIGNMENT);
@@ -95,13 +102,13 @@ public class OpenedTicketsFrame extends JFrame {
         ticketName.setForeground(new Color(40, 40, 40));
         ticketName.setAlignmentX(LEFT_ALIGNMENT);
 
-        JLabel ticketDate = new JLabel("Created on " + sdf.format(ticket.getCreatedAt()));
+        JLabel ticketDate = new JLabel("Created on " + ticket.getCreatedAt());
         ticketDate.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         ticketDate.setForeground(new Color(120, 120, 120));
         ticketDate.setAlignmentX(LEFT_ALIGNMENT);
 
         JLabel stateLbl = new JLabel(
-                "State: " + ticket.getState().name() + "  |  Priority: " + ticket.getPriority().name());
+                "State: " + ticket.getState().getState() + "  |  Priority: " + ticket.getPriority().getLevel());
         stateLbl.setFont(new Font("Segoe UI", Font.ITALIC, 11));
         stateLbl.setForeground(new Color(80, 100, 200));
         stateLbl.setAlignmentX(LEFT_ALIGNMENT);
@@ -128,16 +135,16 @@ public class OpenedTicketsFrame extends JFrame {
         JPanel actionBtns = new JPanel();
         actionBtns.setLayout(new BoxLayout(actionBtns, BoxLayout.Y_AXIS));
         actionBtns.setBackground(Color.WHITE);
-        actionBtns.add(btn("Ticket Status", new Color(0, 120, 215)));
-        actionBtns.add(Box.createVerticalStrut(8));
+        
         JButton commentBtn = btn("Add Comment", new Color(0, 120, 215));
         commentBtn.addActionListener(e -> {
-            AddCommentFrame addCommentFrame = new AddCommentFrame(ticket.getTicketId());
+            AddCommentDialog addCommentFrame = new AddCommentDialog(Integer.toString(ticket.getTicketId()));
             addCommentFrame.setVisible(true);
         });
         actionBtns.add(commentBtn);
         actionBtns.add(Box.createVerticalStrut(8));
 
+        /*
         JButton closeBtn = btn("Close Ticket", new Color(200, 50, 50));
         closeBtn.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(
@@ -146,22 +153,25 @@ public class OpenedTicketsFrame extends JFrame {
                     "Close Ticket Confirmation",
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                TicketService.closeTicket(ticket.getTicketId());
+                ticket.setState(TicketStates.CLOSED);
                 JOptionPane.showMessageDialog(this, "Ticket closed successfully!", "Success",
                         JOptionPane.INFORMATION_MESSAGE);
                 dispose();
-                new OpenedTicketsFrame().setVisible(true);
+                //new OpenedTicketsFrame().setVisible(true);
             }
         });
         actionBtns.add(closeBtn);
-        actionBtns.add(Box.createVerticalStrut(8));
-
-        JButton feedbackBtn = btn("Give Feedback", new Color(100, 180, 100));
-        feedbackBtn.addActionListener(e -> {
-            GiveFeedbackFrame feedbackFrame = new GiveFeedbackFrame(ticket.getTicketId());
-            feedbackFrame.setVisible(true);
-        });
-        actionBtns.add(feedbackBtn);
+        actionBtns.add(Box.createVerticalStrut(8));*/
+        
+        if (!ticket.isOpen()) {
+            JButton feedbackBtn = btn("Give Feedback", new Color(100, 180, 100));
+            feedbackBtn.addActionListener(e -> {
+                GiveFeedbackDialog feedbackFrame = new GiveFeedbackDialog(this, ticket, account);
+                feedbackFrame.setVisible(true);
+                feedbackBtn.setEnabled(false);
+            });
+            actionBtns.add(feedbackBtn);
+        }
 
         card.add(infoPanel, BorderLayout.CENTER);
         card.add(actionBtns, BorderLayout.EAST);
@@ -183,6 +193,6 @@ public class OpenedTicketsFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new OpenedTicketsFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> new OpenedTicketsDialog(null, null, null).setVisible(true));
     }
 }

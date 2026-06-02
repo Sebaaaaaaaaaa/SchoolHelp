@@ -1,36 +1,47 @@
 package DataModels;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class MessageModel {
-    private final String messageId;
-    private final String ticketId;
-    private final String senderId;
-    private final String receiverId;
+    
+    private static int NEXT_ID = 0;
+    
+    private final int messageId;
+    private final TicketModel ticket;
+    private final AccountModel sender;
+    private final AccountModel receiver;
     private final String content;
     private final String timestamp;
 
-    public MessageModel(String messageId, String ticketId, String senderId, String receiverId, String content, String timestamp) {
-        this.messageId = messageId;
-        this.ticketId = ticketId;
-        this.senderId = senderId;
-        this.receiverId = receiverId;
+    public MessageModel(TicketModel ticket, AccountModel sender, AccountModel receiver, String content, String timestamp) {
+        this.messageId =  NEXT_ID;
+        NEXT_ID++;
+        this.ticket = ticket;
+        this.sender = sender;
+        this.receiver = receiver;
         this.content = content;
-        this.timestamp = timestamp;
+        
+        Date now = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = format.format(now);
+        this.timestamp = formattedDate;
     }
 
-    public String getMessageId() {
+    public int getMessageId() {
         return messageId;
     }
 
-    public String getTicketId() {
-        return ticketId;
+    public TicketModel getTicket() {
+        return ticket;
     }
 
-    public String getSenderId() {
-        return senderId;
+    public AccountModel getSender() {
+        return sender;
     }
 
-    public String getReceiverId() {
-        return receiverId;
+    public AccountModel getReceiver() {
+        return receiver;
     }
 
     public String getContent() {

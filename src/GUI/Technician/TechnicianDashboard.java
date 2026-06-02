@@ -1,11 +1,23 @@
 package GUI.Technician;
 
+import ApplicationServices.TicketService;
+import DataModels.AccountModel;
 import java.awt.*;
 import javax.swing.*;
 
 public class TechnicianDashboard extends JFrame {
+    
+    private final Frame owner;
+    private final TicketService ticketService;
+    private final AccountModel account;
 
-    public TechnicianDashboard() {
+    public TechnicianDashboard(Frame owner, TicketService ticketService, AccountModel account) {
+        
+        this.owner = owner;
+        this.ticketService = ticketService;
+        this.account = account;
+        
+        
         setTitle("School Help - Technician Panel");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setSize(320, 360);
@@ -59,16 +71,20 @@ public class TechnicianDashboard extends JFrame {
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         if (t.equals("Logout")) {
-            b.setBackground(new Color(200, 50, 50)); // Red for logout
+            b.setBackground(new Color(200, 50, 50));
+            b.addActionListener(e -> {
+                owner.setVisible(true);
+                dispose();
+            });
         } else if (t.equals("View My Tickets")) {
             b.addActionListener(e -> {
                 this.setVisible(false);
-                new MyTicketsDialog(this).setVisible(true);
+                new MyTicketsDialog(this, ticketService, account).setVisible(true);
             });
         } else {
             b.addActionListener(e -> {
                 this.setVisible(false);
-                new UnassignedTicketsDialog(this).setVisible(true);
+                new UnassignedTicketsDialog(this, ticketService, account).setVisible(true);
             });
         }
 
@@ -76,6 +92,6 @@ public class TechnicianDashboard extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TechnicianDashboard().setVisible(true));
+        SwingUtilities.invokeLater(() -> new TechnicianDashboard(null, null, null).setVisible(true));
     }
 }

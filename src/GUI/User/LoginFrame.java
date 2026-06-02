@@ -1,13 +1,22 @@
 package GUI.User;
 
-import ApplicationServices.AuthenticationService;
+import ApplicationServices.AdministrationService;
+import Utils.AuthenticationUtil;
+import ApplicationServices.TicketService;
 import DataModels.AccountModel;
 import java.awt.*;
 import javax.swing.*;
 
 public class LoginFrame extends JFrame {
+    
+    private final TicketService ticketService;
+    private final AdministrationService administrationService;
 
     public LoginFrame() {
+        
+        this.ticketService = new TicketService();
+        this.administrationService = new AdministrationService();
+        
         setTitle("School Help - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(320, 420);
@@ -65,17 +74,16 @@ public class LoginFrame extends JFrame {
         btnLogin.setBorder(BorderFactory.createEmptyBorder());
         btnLogin.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        AuthenticationService authService = new AuthenticationService();
         btnLogin.addActionListener(e -> {
             String username = userField.getText();
             String password = new String(passField.getPassword());
 
-            AccountModel account = authService.login(username, password);
+            AccountModel account = AuthenticationUtil.authlogin(username, password, administrationService.getUsers());
             if (account != null) {
                 switch (account.getRole()) {
-                    case ADMIN -> new GUI.Admin.AdminDashboard().setVisible(true);
-                    case USER -> new GUI.User.UserDashboard().setVisible(true);
-                    case TECHNICIAN -> new GUI.Technician.TechnicianDashboard().setVisible(true);
+                    case ADMIN -> new GUI.Admin.AdminDashboard(this, ticketService, administrationService, account).setVisible(true);
+                    case STUDENT -> new GUI.User.UserDashboard(this, ticketService, account).setVisible(true);
+                    case TECHNICIAN -> new GUI.Technician.TechnicianDashboard(this, ticketService, account).setVisible(true);
                 }
                 this.dispose();
             } else {

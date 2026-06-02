@@ -1,16 +1,27 @@
 package GUI.Technician;
 
-import ApplicationServices.TicketService;
 import DataModels.FeedbackModel;
+import DataModels.InternalNoteModel;
+import DataModels.TicketModel;
+import Utils.PriorityLevels;
+import Utils.TicketStates;
 
 import java.awt.*;
 import javax.swing.*;
 
 public class TicketDetailDialog extends JDialog {
+    
+    private final JDialog owner;
+    private final TicketModel selectedTicket;
+    private final JComboBox<TicketStates> status;
+    private JTextArea note;
 
-    public TicketDetailDialog(Frame owner, String ticketId) {
-        super(owner, "School Help - Ticket " + ticketId, true);
-
+    public TicketDetailDialog(JDialog owner, TicketModel selectedTicket) {
+        super(owner, "School Help - Ticket " + selectedTicket.getTicketId(), true);
+        
+        this.owner = owner;
+        this.selectedTicket = selectedTicket;
+        
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(520, 720);
         setLocationRelativeTo(owner);
@@ -21,25 +32,24 @@ public class TicketDetailDialog extends JDialog {
         p.setBackground(Color.WHITE);
         p.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
-        p.add(lbl("Ticket #011", 28, new Color(40, 40, 40)));
+        p.add(lbl("Ticket #" + selectedTicket.getTicketId(), 28, new Color(40, 40, 40)));
         p.add(Box.createVerticalStrut(5));
-        p.add(lbl("No internet room 5  |  In lavorazione", 14, new Color(0, 120, 215)));
+        p.add(lbl(selectedTicket.getTitle() + " | " + selectedTicket.getState().getState(), 14, new Color(0, 120, 215)));
         p.add(Box.createVerticalStrut(15));
         p.add(sep());
 
         p.add(Box.createVerticalStrut(15));
         p.add(italic("Ticket info"));
-        p.add(Box.createVerticalStrut(5));
-        p.add(infoRow("Category:", "Network"));
-        p.add(infoRow("Priority:", "High"));
-        p.add(infoRow("Opened by:", "Giulia Bianchi"));
-        p.add(infoRow("Date:", "15/07/2025 09:32"));
+        p.add(Box.createVerticalStrut(4));
+        p.add(infoRow("Priority:", selectedTicket.getPriority().getLevel()));
+        p.add(infoRow("Opened by:", selectedTicket.getUserAccount().getFullName()));
+        p.add(infoRow("Date:", selectedTicket.getCreatedAt()));
         p.add(Box.createVerticalStrut(15));
         p.add(lbl("Description", 12, new Color(80, 80, 80)));
         p.add(Box.createVerticalStrut(5));
 
         JTextArea desc = new JTextArea(
-                "The computers in room 5 cannot connect to the internet since this morning.",
+                selectedTicket.getDescription(),
                 3, 0
         );
         desc.setEditable(false);
@@ -60,35 +70,21 @@ public class TicketDetailDialog extends JDialog {
         p.add(Box.createVerticalStrut(15));
         p.add(italic("Update status"));
         p.add(Box.createVerticalStrut(5));
-        p.add(lbl("New Status", 12, new Color(80, 80, 80)));
         p.add(Box.createVerticalStrut(5));
 
-        JComboBox<String> status =
-                new JComboBox<>(new String[]{"In lavorazione", "In attesa", "Chiuso"});
+        status = new JComboBox<>(TicketStates.values());
+        status.setSelectedItem(selectedTicket.getState());
+        if (!selectedTicket.isOpen()) status.setEnabled(false);
         status.setBackground(Color.WHITE);
         status.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         status.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         status.setAlignmentX(LEFT_ALIGNMENT);
         p.add(status);
 
-        p.add(Box.createVerticalStrut(10));
-        p.add(lbl("Reason (if \"In attesa\")", 12, new Color(80, 80, 80)));
-        p.add(Box.createVerticalStrut(5));
-
-        JTextField reason = new JTextField();
-        reason.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        reason.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        reason.setAlignmentX(LEFT_ALIGNMENT);
-        reason.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
-        ));
-        p.add(reason);
-
         p.add(Box.createVerticalStrut(20));
         p.add(sep());
         p.add(Box.createVerticalStrut(15));
-        p.add(italic("Add public comment (visible to user)"));
+        p.add(italic("Add public comment (visible to user!)"));
         p.add(Box.createVerticalStrut(5));
 
         JTextArea pub = new JTextArea(3, 0);
@@ -101,22 +97,47 @@ public class TicketDetailDialog extends JDialog {
         ps.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         ps.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         p.add(ps);
+        
+        InternalNoteModel internalNote = selectedTicket.getInternalNote();
 
-        p.add(Box.createVerticalStrut(15));
-        p.add(italic("Add internal note (technicians only)"));
-        p.add(Box.createVerticalStrut(5));
+        if (internalNote == null) {
+            p.add(Box.createVerticalStrut(15));
+            p.add(italic("Add internal note"));
+            p.add(Box.createVerticalStrut(5));
 
-        JTextArea note = new JTextArea(3, 0);
-        note.setLineWrap(true);
-        note.setBackground(new Color(255, 250, 240));
-        note.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        note.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            note = new JTextArea(3, 0);
+            note.setLineWrap(true);
+            note.setBackground(new Color(255, 250, 240));
+            note.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            note.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        JScrollPane ns = new JScrollPane(note);
-        ns.setAlignmentX(LEFT_ALIGNMENT);
-        ns.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-        ns.setBorder(BorderFactory.createLineBorder(new Color(220, 200, 100)));
-        p.add(ns);
+            JScrollPane ns = new JScrollPane(note);
+            ns.setAlignmentX(LEFT_ALIGNMENT);
+            ns.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+            ns.setBorder(BorderFactory.createLineBorder(new Color(220, 200, 100)));
+            p.add(ns);  
+            
+        } else {
+            p.add(Box.createVerticalStrut(15));
+            p.add(italic("Internal note"));
+            p.add(Box.createVerticalStrut(5));
+
+            note = new JTextArea(3, 0);
+            note.setEditable(false);
+            note.setLineWrap(true);
+            note.setBackground(new Color(255, 250, 240));
+            note.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            note.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            note.setText(internalNote.getContent());
+
+            JScrollPane ns = new JScrollPane(note);
+            ns.setAlignmentX(LEFT_ALIGNMENT);
+            ns.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+            ns.setBorder(BorderFactory.createLineBorder(new Color(220, 200, 100)));
+
+            p.add(ns);
+        }
 
         p.add(Box.createVerticalStrut(20));
 
@@ -134,7 +155,7 @@ public class TicketDetailDialog extends JDialog {
         p.add(italic("User feedback"));
         p.add(Box.createVerticalStrut(8));
 
-        FeedbackModel fb = TicketService.getFeedbackForTicket(ticketId);
+        FeedbackModel fb = selectedTicket.getFeedback();
 
         if (fb == null) {
             JLabel noFb = new JLabel("No feedback submitted yet.");
@@ -143,7 +164,7 @@ public class TicketDetailDialog extends JDialog {
             noFb.setAlignmentX(LEFT_ALIGNMENT);
             p.add(noFb);
         } else {
-            p.add(infoRow("Rating:", fb.getRating() + " / 5 ★"));
+            p.add(infoRow("Rating:", fb.getRating().getValue() + " / 5 ★"));
             p.add(Box.createVerticalStrut(8));
 
             p.add(lbl("Written review", 12, new Color(80, 80, 80)));
@@ -165,12 +186,6 @@ public class TicketDetailDialog extends JDialog {
         }
 
         p.add(Box.createVerticalStrut(20));
-
-        JLabel footer = new JLabel("Laboratory: MULTI 2");
-        footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        footer.setForeground(new Color(150, 150, 150));
-        footer.setAlignmentX(CENTER_ALIGNMENT);
-        p.add(footer);
 
         JScrollPane outer = new JScrollPane(p);
         outer.setBorder(null);
@@ -211,6 +226,35 @@ public class TicketDetailDialog extends JDialog {
         b.setFocusPainted(false);
         b.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        if (t.equals("Save Changes")) {
+            b.addActionListener(e -> {
+                TicketStates selectedStatus = (TicketStates) status.getSelectedItem();
+                if (selectedStatus != selectedTicket.getState()) {
+                    selectedTicket.setState(selectedStatus);
+                }
+                
+                if (!note.getText().isBlank()) {
+                    selectedTicket.setInternalNote(new InternalNoteModel(selectedTicket, selectedTicket.getTechnicianAccount(), note.getText()));
+                }
+                
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Changes saved",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+                
+                owner.setVisible(true);
+                dispose();
+            });
+        } else {
+            b.addActionListener(e -> {
+                owner.setVisible(true);
+                dispose();
+            });
+        }
+        
         return b;
     }
 
@@ -236,8 +280,12 @@ public class TicketDetailDialog extends JDialog {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            TicketDetailDialog dialog =
-                    new TicketDetailDialog(null, "test-ticket-id");
+            TicketDetailDialog dialog = new TicketDetailDialog(null, new TicketModel(
+                "No internet in room 5",
+                "The workstation in room 5 cannot access the network.",
+                PriorityLevels.HIGH,
+                null
+            ));
             dialog.setVisible(true);
         });
     }

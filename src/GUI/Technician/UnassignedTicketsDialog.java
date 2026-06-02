@@ -1,13 +1,24 @@
 package GUI.Technician;
 
+import ApplicationServices.TicketService;
+import DataModels.AccountModel;
+import DataModels.TechnicianTicketsTableModel;
+import DataModels.TicketModel;
+import DataModels.UnassignedTicketsTableModel;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 
 public class UnassignedTicketsDialog extends JDialog {
+    
+    private final JFrame owner;
+    private final AccountModel account;
 
-    public UnassignedTicketsDialog(Frame owner) {
+    public UnassignedTicketsDialog(JFrame owner, TicketService ticketService, AccountModel account) {
         super(owner, "School Help - Unassigned Tickets", true);
+        
+        this.owner = owner;
+        this.account = account;
 
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(700, 450);
@@ -38,21 +49,7 @@ public class UnassignedTicketsDialog extends JDialog {
         header.add(Box.createVerticalStrut(5));
         header.add(sub);
 
-        String[] cols = {"ID", "Title", "Category", "Priority", "Date"};
-        Object[][] data = {
-                {"#014", "Printer offline lab B", "Network",  "High",     "15/07/2025"},
-                {"#015", "PC won't start room 3", "Hardware", "Critical", "15/07/2025"},
-                {"#016", "Install Scratch 3.0",   "Software", "Low",      "14/07/2025"},
-                {"#017", "Projector not working", "Hardware", "High",     "14/07/2025"},
-                {"#018", "Network slow room 12",   "Network",  "Medium",   "13/07/2025"},
-        };
-
-        JTable table = new JTable(new DefaultTableModel(data, cols) {
-            @Override
-            public boolean isCellEditable(int r, int c) {
-                return false;
-            }
-        });
+        JTable table = new JTable(new UnassignedTicketsTableModel(ticketService.getUnassignedTickets()));
 
         table.setRowHeight(30);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -68,8 +65,8 @@ public class UnassignedTicketsDialog extends JDialog {
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btns.setBackground(Color.WHITE);
-        btns.add(btn("Take Charge", new Color(0, 120, 215)));
-        btns.add(btn("Back", new Color(150, 150, 150)));
+        btns.add(btn("Take Charge", new Color(0, 120, 215), table));
+        btns.add(btn("Back", new Color(150, 150, 150), null));
 
         JLabel footer = new JLabel("Laboratory: MULTI 2");
         footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
@@ -88,7 +85,7 @@ public class UnassignedTicketsDialog extends JDialog {
         add(p);
     }
 
-    private JButton btn(String t, Color bg) {
+    private JButton btn(String t, Color bg, JTable table) {
         JButton b = new JButton(t);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setBackground(bg);
@@ -96,12 +93,34 @@ public class UnassignedTicketsDialog extends JDialog {
         b.setFocusPainted(false);
         b.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        if (t.equals("Take Charge")) {
+            b.addActionListener(e -> {
+                int row = table.getSelectedRow();
+
+                if (row != -1) {
+                    TicketModel ticket = ((UnassignedTicketsTableModel) table.getModel()).getTicketAt(row);
+                    ticket.setTechnician(account);
+                    int modelRow = table.convertRowIndexToModel(row);
+                    ((UnassignedTicketsTableModel) table.getModel()).removeTicketAt(modelRow);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Select a Ticket", "Selection Failed",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        } else {
+            b.addActionListener(e -> {
+                owner.setVisible(true);
+                dispose();
+            });
+        }
+        
         return b;
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            UnassignedTicketsDialog dialog = new UnassignedTicketsDialog(null);
+            UnassignedTicketsDialog dialog = new UnassignedTicketsDialog(null, null, null);
             dialog.setVisible(true);
         });
     }

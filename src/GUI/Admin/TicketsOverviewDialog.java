@@ -1,13 +1,25 @@
 package GUI.Admin;
 
+import ApplicationServices.TicketService;
+import DataModels.TicketModel;
+import DataModels.TicketsOverviewListModel;
+import Utils.PriorityLevels;
+import Utils.TicketStates;
 import java.awt.*;
 import javax.swing.*;
 
-public class TicketsOverviewFrame extends JFrame {
+public class TicketsOverviewDialog extends JDialog {
+    
+    private final JFrame owner;
+    private TicketModel selectedTicket;
 
-    public TicketsOverviewFrame() {
-        setTitle("School Help - Tickets Overview");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    public TicketsOverviewDialog(JFrame owner, TicketService ticketService) {
+        super(owner, "School Help - Tickets Overview", true);
+        
+        this.owner = owner;
+        this.selectedTicket = null;
+        
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(550, 560);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -26,11 +38,7 @@ public class TicketsOverviewFrame extends JFrame {
         sub.setForeground(new Color(120, 120, 120));
         sub.setAlignmentX(LEFT_ALIGNMENT);
 
-        DefaultListModel<String> model = new DefaultListModel<>();
-        model.addElement("Ticket #001, Status: Closed");
-        model.addElement("Ticket #002, Status: On-Hold");
-        model.addElement("Ticket #003, Status: Active");
-        JList<String> list = new JList<>(model);
+        JList<String> list = new JList<>(new TicketsOverviewListModel(ticketService.getTickets()));
         list.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         list.setBackground(Color.WHITE);
         list.setForeground(new Color(60, 60, 60));
@@ -50,29 +58,68 @@ public class TicketsOverviewFrame extends JFrame {
         g.weightx = 0.5;
 
         JTextField utente = tf(); 
-        JComboBox<String> statusC = new JComboBox<>(new String[]{"Active","On-Hold","Closed"}); 
-        statusC.setSelectedItem("On-Hold"); 
+        
+        JComboBox<TicketStates> statusC = new JComboBox<>(TicketStates.values());
+        statusC.setEnabled(false);
+        statusC.addActionListener(e -> {
+            selectedTicket.setState((TicketStates) statusC.getSelectedItem());
+            list.setModel(new TicketsOverviewListModel(ticketService.getTickets()));
+        });
         statusC.setBackground(Color.WHITE);
         statusC.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         
-        JTextArea descA = new JTextArea(4,0); 
-        descA.setLineWrap(true);
-        descA.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        JScrollPane descScroll = new JScrollPane(descA);
-        descScroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)), BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        
         JTextField op = tf();
-        JComboBox<String> prioC = new JComboBox<>(new String[]{"High","Medium","Low","Critical"}); 
+        
+        JComboBox<PriorityLevels> prioC = new JComboBox<>(PriorityLevels.values());
+        prioC.setEnabled(false);
+        prioC.addActionListener(e -> {
+            selectedTicket.setPriority((PriorityLevels) prioC.getSelectedItem());
+            list.setModel(new TicketsOverviewListModel(ticketService.getTickets()));
+        });
         prioC.setBackground(Color.WHITE);
         prioC.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        
+        list.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int row = list.getSelectedIndex();
+                
+                if (row > -1) {
+                    selectedTicket = ((TicketsOverviewListModel) list.getModel()).getTicketAt(row);
 
-        g.gridx=0; g.gridy=0; fields.add(lbl("Utente"),g);        g.gridx=2; fields.add(lbl("Ticket Status"),g);
-        g.gridx=0; g.gridy=1; fields.add(utente,g);               g.gridx=2; fields.add(statusC,g);
-        g.gridx=0; g.gridy=2; fields.add(lbl("Description"),g);   g.gridx=2; fields.add(lbl("Operator"),g);
-        g.gridx=0; g.gridy=3; g.gridheight=2; fields.add(descScroll,g); g.gridheight=1;
-        g.gridx=2; g.gridy=3; fields.add(op,g);
-        g.gridx=0; g.gridy=5; fields.add(lbl("Priority"),g);
-        g.gridx=0; g.gridy=6; fields.add(prioC,g);
+                    utente.setText(selectedTicket.getUserAccount().getFullName());
+                    op.setText((selectedTicket.getTechnicianAccount() != null? selectedTicket.getTechnicianAccount().getFullName(): "None"));
+
+                    statusC.setEnabled(true);
+                    statusC.setSelectedItem(selectedTicket.getState());
+                    prioC.setEnabled(true);
+                    prioC.setSelectedItem(selectedTicket.getPriority());   
+                }
+            }
+        });
+
+        g.gridx = 0; g.gridy = 0;
+        fields.add(lbl("Utente"), g);
+
+        g.gridx = 2; g.gridy = 0;
+        fields.add(lbl("Ticket Status"), g);
+
+        g.gridx = 0; g.gridy = 1;
+        fields.add(utente, g);
+
+        g.gridx = 2; g.gridy = 1;
+        fields.add(statusC, g);
+
+        g.gridx = 0; g.gridy = 2;
+        fields.add(lbl("Operator"), g);
+
+        g.gridx = 0; g.gridy = 3;
+        fields.add(op, g);
+
+        g.gridx = 2; g.gridy = 2;
+        fields.add(lbl("Priority"), g);
+
+        g.gridx = 2; g.gridy = 3;
+        fields.add(prioC, g);
 
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         btnRow.setBackground(Color.WHITE); 
@@ -101,6 +148,7 @@ public class TicketsOverviewFrame extends JFrame {
     
     private JTextField tf() { 
         JTextField f = new JTextField(); 
+        f.setEditable(false);
         f.setFont(new Font("Segoe UI", Font.PLAIN, 14)); 
         f.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)), BorderFactory.createEmptyBorder(5, 10, 5, 10)));
         return f; 
@@ -114,10 +162,14 @@ public class TicketsOverviewFrame extends JFrame {
         b.setFocusPainted(false); 
         b.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        b.addActionListener(e -> {
+            owner.setVisible(true);
+            dispose();
+        });
         return b; 
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new TicketsOverviewFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> new TicketsOverviewDialog(null, null).setVisible(true));
     }
 }

@@ -1,13 +1,33 @@
 package GUI.Admin;
 
+import ApplicationServices.AdministrationService;
+import DataModels.AccountModel;
+import DataModels.UsersListModel;
+import GUI.User.LoginFrame;
+import Utils.AccountRoles;
 import java.awt.*;
 import javax.swing.*;
 
-public class ManageUsersFrame extends JFrame {
+public class ManageUsersDialog extends JDialog {
+    
+    private final JFrame owner;
+    private final AdministrationService adminServices;
+    private AccountModel selectedUser;
+    private JComboBox<AccountRoles> perm;
+    private JPasswordField pass;
+    private JTextField user;
+    private final JList<String> list;
+    private final AccountModel account;
 
-    public ManageUsersFrame() {
-        setTitle("School Help - Manage Users");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    public ManageUsersDialog(JFrame owner, AdministrationService adminServices, AccountModel account) {
+        super(owner, "School Help - Manage Users", true);
+        
+        this.owner = owner;
+        this.adminServices = adminServices;
+        this.selectedUser = null;
+        this.account = account;
+        
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(500, 400);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -36,7 +56,7 @@ public class ManageUsersFrame extends JFrame {
         form.setBackground(Color.WHITE);
         
         form.add(lbl("Username")); form.add(Box.createVerticalStrut(5));
-        JTextField user = new JTextField(); 
+        user = new JTextField(); 
         user.setMaximumSize(new Dimension(Integer.MAX_VALUE,36)); 
         user.setAlignmentX(LEFT_ALIGNMENT); 
         user.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -45,7 +65,7 @@ public class ManageUsersFrame extends JFrame {
         form.add(Box.createVerticalStrut(10));
         
         form.add(lbl("Password")); form.add(Box.createVerticalStrut(5));
-        JPasswordField pass = new JPasswordField(); 
+        pass = new JPasswordField(); 
         pass.setMaximumSize(new Dimension(Integer.MAX_VALUE,36)); 
         pass.setAlignmentX(LEFT_ALIGNMENT); 
         pass.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -54,18 +74,30 @@ public class ManageUsersFrame extends JFrame {
         form.add(Box.createVerticalStrut(10));
         
         form.add(lbl("Permission")); form.add(Box.createVerticalStrut(5));
-        JComboBox<String> perm = new JComboBox<>(new String[]{"Student","Operator","Administrator"}); 
+        perm = new JComboBox<>(AccountRoles.values());
+        perm.setEnabled(false);
         perm.setBackground(Color.WHITE); 
         perm.setMaximumSize(new Dimension(Integer.MAX_VALUE,36)); 
         perm.setAlignmentX(LEFT_ALIGNMENT);
         perm.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         form.add(perm);
 
-        DefaultListModel<String> model = new DefaultListModel<>();
-        model.addElement("fcipollone, Administrator");
-        model.addElement("prenna, Student");
-        model.addElement("fscionti, Operator");
-        JList<String> list = new JList<>(model);
+        list = new JList<>(new UsersListModel(adminServices.getUsers()));
+        list.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int row = list.getSelectedIndex();
+                
+                if (row > -1) {
+                    selectedUser = ((UsersListModel) list.getModel()).getTicketAt(row);
+
+                    user.setText(selectedUser.getUsername());
+                    pass.setText(selectedUser.getPassword());
+
+                    perm.setEnabled(true);
+                    perm.setSelectedItem(selectedUser.getRole());  
+                }
+            }
+        });
         list.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         list.setBackground(Color.WHITE);
         list.setForeground(new Color(60, 60, 60));
@@ -109,11 +141,40 @@ public class ManageUsersFrame extends JFrame {
         b.setFocusPainted(false); 
         b.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        if (t.equals("Update")) {
+            b.addActionListener(e -> {
+                if (!list.isSelectionEmpty()) {
+                    selectedUser.setUsername(user.getText());
+                    selectedUser.setPassword(pass.getText());  
+                    selectedUser.setRole((AccountRoles) perm.getSelectedItem());
+                    
+                    list.setModel(new UsersListModel(adminServices.getUsers()));
+                    
+                    JOptionPane.showMessageDialog(this,
+                        "Updated successfully!",
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
+                    
+                    if (selectedUser == account) {
+                        new LoginFrame().setVisible(true);
+                        dispose();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Please select a user.", "Selection Error", JOptionPane.WARNING_MESSAGE);
+                }
+            });
+        } else {
+            b.addActionListener(e -> {
+                owner.setVisible(true);
+                dispose();
+            });
+        }
+        
         return b; 
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ManageUsersFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> new ManageUsersDialog(null, null, null).setVisible(true));
     }
 }
 

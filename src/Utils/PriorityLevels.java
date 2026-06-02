@@ -1,18 +1,18 @@
 package Utils;
 
 public enum PriorityLevels {
-    LOW(1),
-    MEDIUM(2),
-    HIGH(3),
-    URGENT(4);
+    LOW("low"),
+    MEDIUM("Medium"),
+    HIGH("High"),
+    URGENT("Urgent");
 
-    private final int level;
+    private final String level;
 
-    PriorityLevels(int level) {
+    PriorityLevels(String level) {
         this.level = level;
     }
 
-    public int getLevel() {
+    public String getLevel() {
         return level;
     }
 }

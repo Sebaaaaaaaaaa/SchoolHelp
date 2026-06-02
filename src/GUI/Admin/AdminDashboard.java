@@ -1,13 +1,36 @@
 package GUI.Admin;
 
+import ApplicationServices.AdministrationService;
+import ApplicationServices.TicketService;
+import DataModels.AccountModel;
+import GUI.Technician.MyTicketsDialog;
+import GUI.Technician.UnassignedTicketsDialog;
 import java.awt.*;
 import javax.swing.*;
 
 public class AdminDashboard extends JFrame {
 
-    public AdminDashboard() {
+    private final JFrame owner;
+    private final TicketService ticketService;
+    private final AdministrationService adminServices;
+    private final AccountModel account;
+    
+    public AdminDashboard(JFrame owner, TicketService ticketService, AdministrationService adminServices, AccountModel account) {
+        
+        this.owner = owner;
+        this.ticketService = ticketService;
+        this.adminServices = adminServices;
+        this.account = account;
+        
         setTitle("School Help - Admin Dashboard");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                owner.setVisible(true);
+                dispose();
+            }
+        });
         setSize(320, 360);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -63,10 +86,24 @@ public class AdminDashboard extends JFrame {
         b.setAlignmentX(CENTER_ALIGNMENT);
         b.setBorder(BorderFactory.createEmptyBorder());
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        if (t.equals("Ticket Overview")) {
+            b.addActionListener(e -> {
+                new TicketsOverviewDialog(this, ticketService).setVisible(true);
+            });
+        } else if (t.equals("Manage Users")) {
+            b.addActionListener(e -> {
+                new ManageUsersDialog(this, adminServices, account).setVisible(true);
+            });
+        } else {
+            b.addActionListener(e -> {
+                new StatisticsOverviewDialog(this, adminServices, ticketService).setVisible(true);
+            });
+        }
         return b;
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AdminDashboard().setVisible(true));
+        SwingUtilities.invokeLater(() -> new AdminDashboard(null, null, null, null).setVisible(true));
     }
 }

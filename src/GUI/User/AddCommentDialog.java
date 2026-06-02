@@ -5,9 +5,9 @@ import ApplicationServices.TicketService;
 import java.awt.*;
 import javax.swing.*;
 
-public class AddCommentFrame extends JFrame {
+public class AddCommentDialog extends JFrame {
 
-    public AddCommentFrame(String ticketId) {
+    public AddCommentDialog(String ticketId) {
         setTitle("School Help - Add Comment");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(500, 300);
@@ -40,7 +40,7 @@ public class AddCommentFrame extends JFrame {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            TicketService.addComment(ticketId, "1", commentText);
+            //TicketService.addComment(ticketId, "1", commentText);
             JOptionPane.showMessageDialog(this, "Comment added successfully!", "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             dispose();
@@ -73,6 +73,6 @@ public class AddCommentFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AddCommentFrame("test-ticket-id").setVisible(true));
+        SwingUtilities.invokeLater(() -> new AddCommentDialog("test-ticket-id").setVisible(true));
     }
 }

@@ -1,15 +1,19 @@
 package GUI.User;
 
-import ApplicationServices.TicketService;
+import DataModels.AccountModel;
+import DataModels.FeedbackModel;
+import DataModels.TicketModel;
+import Utils.RatingValues;
 
 import java.awt.*;
 import javax.swing.*;
 
-public class GiveFeedbackFrame extends JFrame {
+public class GiveFeedbackDialog extends JDialog {
 
-    public GiveFeedbackFrame(String ticketId) {
-        setTitle("School Help - Give Feedback");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    public GiveFeedbackDialog(JDialog owner, TicketModel ticket, AccountModel account) {
+        super(owner, "School Help - Give Feedback", true);
+        
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(450, 380);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -47,8 +51,8 @@ public class GiveFeedbackFrame extends JFrame {
         starsLbl.setForeground(new Color(80, 80, 80));
         starsLbl.setAlignmentX(LEFT_ALIGNMENT);
 
-        JComboBox<String> stars = new JComboBox<>(new String[] { "1", "2", "3", "4", "5" });
-        stars.setSelectedItem("4");
+        JComboBox<RatingValues> stars = new JComboBox<>(RatingValues.values());
+        stars.setSelectedItem(RatingValues.GOOD);
         stars.setBackground(Color.WHITE);
         stars.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         stars.setMaximumSize(new Dimension(100, 36));
@@ -65,19 +69,24 @@ public class GiveFeedbackFrame extends JFrame {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            String selectedRating = (String) stars.getSelectedItem();
+            RatingValues rating = (RatingValues) stars.getSelectedItem();
 
-            TicketService.saveFeedback(ticketId, "1", selectedRating, reviewText);
+            ticket.setFeedBack(new FeedbackModel(ticket, account, rating, reviewText));
             JOptionPane.showMessageDialog(
                     this,
                     "Thank you! Your feedback has been saved.",
                     "Feedback Submitted",
                     JOptionPane.INFORMATION_MESSAGE);
+            
+            owner.setVisible(true);
             dispose();
         });
 
         JButton cancelBtn = btn("Cancel", new Color(150, 150, 150));
-        cancelBtn.addActionListener(e -> dispose());
+        cancelBtn.addActionListener(e -> {
+            owner.setVisible(true);
+            dispose();
+        });
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btns.setBackground(Color.WHITE);
@@ -113,6 +122,6 @@ public class GiveFeedbackFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GiveFeedbackFrame("test-ticket-id").setVisible(true));
+        SwingUtilities.invokeLater(() -> new GiveFeedbackDialog(null, null, null).setVisible(true));
     }
 }
