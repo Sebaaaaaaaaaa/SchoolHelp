@@ -12,7 +12,7 @@ public class AuthenticationService {
         dummyAccounts = new ArrayList<>();
         
         dummyAccounts.add(new AccountModel(1, "admin", "admin123", "System", "Admin", AccountRoles.ADMIN));
-        dummyAccounts.add(new AccountModel(2, "student", "password", "Test", "Student", AccountRoles.STUDENT));
+        dummyAccounts.add(new AccountModel(2, "student", "password", "Test", "Student", AccountRoles.USER));
         dummyAccounts.add(new AccountModel(3, "tech", "tech123", "Test", "Technician", AccountRoles.TECHNICIAN));
     }
 

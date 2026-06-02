@@ -1,7 +1,7 @@
 package Utils;
 
 public enum AccountRoles {
-    STUDENT("Student"),
+    USER("Student"),
     TECHNICIAN("Technician"),
     ADMIN("Admin");
 

@@ -74,7 +74,7 @@ public class LoginFrame extends JFrame {
             if (account != null) {
                 switch (account.getRole()) {
                     case ADMIN -> new GUI.Admin.AdminDashboard().setVisible(true);
-                    case STUDENT -> new GUI.User.UserDashboard().setVisible(true);
+                    case USER -> new GUI.User.UserDashboard().setVisible(true);
                     case TECHNICIAN -> new GUI.Technician.TechnicianDashboard().setVisible(true);
                 }
                 this.dispose();

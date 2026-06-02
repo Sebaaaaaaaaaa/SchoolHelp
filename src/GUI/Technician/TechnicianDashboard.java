@@ -7,7 +7,7 @@ public class TechnicianDashboard extends JFrame {
 
     public TechnicianDashboard() {
         setTitle("School Help - Technician Panel");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setSize(320, 360);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -60,6 +60,16 @@ public class TechnicianDashboard extends JFrame {
 
         if (t.equals("Logout")) {
             b.setBackground(new Color(200, 50, 50)); // Red for logout
+        } else if (t.equals("View My Tickets")) {
+            b.addActionListener(e -> {
+                this.setVisible(false);
+                new MyTicketsDialog(this).setVisible(true);
+            });
+        } else {
+            b.addActionListener(e -> {
+                this.setVisible(false);
+                new UnassignedTicketsDialog(this).setVisible(true);
+            });
         }
 
         return b;

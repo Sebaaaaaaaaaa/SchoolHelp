@@ -3,13 +3,14 @@ package GUI.Technician;
 import java.awt.*;
 import javax.swing.*;
 
-public class CloseTicketFrame extends JFrame {
+public class CloseTicketDialog extends JDialog {
 
-    public CloseTicketFrame() {
-        setTitle("School Help - Close Ticket");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    public CloseTicketDialog(Frame owner) {
+        super(owner, "School Help - Close Ticket", true);
+
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(400, 320);
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(owner);
         setResizable(false);
 
         JPanel p = new JPanel();
@@ -37,8 +38,14 @@ public class CloseTicketFrame extends JFrame {
         area.setWrapStyleWord(true);
         area.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         area.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
         JScrollPane scroll = new JScrollPane(area);
-        scroll.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)), BorderFactory.createEmptyBorder(2, 2, 2, 2)));
+        scroll.setBorder(
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(2, 2, 2, 2)
+            )
+        );
         scroll.setAlignmentX(LEFT_ALIGNMENT);
         scroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 110));
 
@@ -46,6 +53,7 @@ public class CloseTicketFrame extends JFrame {
         btns.setBackground(Color.WHITE);
         btns.setAlignmentX(LEFT_ALIGNMENT);
         btns.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+
         btns.add(btn("Close Ticket", new Color(0, 120, 215)));
         btns.add(btn("Cancel", new Color(150, 150, 150)));
 
@@ -69,19 +77,21 @@ public class CloseTicketFrame extends JFrame {
         add(p);
     }
 
-    private JButton btn(String t, Color bg) { 
-        JButton b = new JButton(t); 
-        b.setFont(new Font("Segoe UI", Font.BOLD, 14)); 
-        b.setBackground(bg); 
-        b.setForeground(Color.WHITE); 
-        b.setFocusPainted(false); 
+    private JButton btn(String t, Color bg) {
+        JButton b = new JButton(t);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        b.setBackground(bg);
+        b.setForeground(Color.WHITE);
+        b.setFocusPainted(false);
         b.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return b; 
+        return b;
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new CloseTicketFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            CloseTicketDialog dialog = new CloseTicketDialog(null);
+            dialog.setVisible(true);
+        });
     }
 }
-
