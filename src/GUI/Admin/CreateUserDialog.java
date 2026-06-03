@@ -1,13 +1,16 @@
 package GUI.Admin;
 
+import ApplicationServices.AdministrationService;
+import Utils.AccountRoles;
 import java.awt.*;
 import javax.swing.*;
 
 public class CreateUserDialog extends JDialog {
 
-    public CreateUserDialog() {
-        setTitle("School Help - Create User");
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    public CreateUserDialog(JFrame owner, AdministrationService adminService) {
+        super(owner, "School Help - Create User", true);
+        
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(400, 520);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -64,7 +67,7 @@ public class CreateUserDialog extends JDialog {
 
         panel.add(lbl("Role"));
         panel.add(Box.createVerticalStrut(5));
-        JComboBox<String> roleCombo = new JComboBox<>(new String[] { "User", "Technician", "Admin" });
+        JComboBox<AccountRoles> roleCombo = new JComboBox<>(AccountRoles.values());
         roleCombo.setBackground(Color.WHITE);
         roleCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         roleCombo.setAlignmentX(LEFT_ALIGNMENT);
@@ -78,8 +81,46 @@ public class CreateUserDialog extends JDialog {
         buttonsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
         JButton btnCreate = btn("Create", new Color(0, 120, 215));
+        btnCreate.addActionListener(e ->{
+            String name = nameField.getText();
+            String surname = surnameField.getText();
+            String username = userField.getText();
+            String password = passField.getText();
+            AccountRoles role = (AccountRoles) roleCombo.getSelectedItem();
+            
+            if (nameField.getText().isBlank()) {
+               JOptionPane.showMessageDialog(this, "Please enter a name.", "Input Error", JOptionPane.WARNING_MESSAGE);
+               return;
+            }
+            
+            if (surnameField.getText().isBlank()) {
+               JOptionPane.showMessageDialog(this, "Please enter a surname.", "Input Error", JOptionPane.WARNING_MESSAGE);
+               return;
+            }
+            
+            if (userField.getText().isBlank()) {
+               JOptionPane.showMessageDialog(this, "Please enter a username.", "Input Error", JOptionPane.WARNING_MESSAGE);
+               return;
+            }
+            
+            if (passField.getText().isBlank()) {
+               JOptionPane.showMessageDialog(this, "Please enter a password.", "Input Error", JOptionPane.WARNING_MESSAGE);
+               return;
+            }
+            
+            adminService.addUser(username, password, name, surname, role);
+            
+            JOptionPane.showMessageDialog(this, "Added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+            owner.setVisible(true);
+            dispose();
+        });
         JButton btnCancel = btn("Cancel", new Color(150, 150, 150));
-
+        btnCancel.addActionListener(e ->{
+            owner.setVisible(true);
+            dispose();
+        });
+        
         buttonsPanel.add(btnCreate);
         buttonsPanel.add(btnCancel);
         panel.add(buttonsPanel);
@@ -118,6 +159,6 @@ public class CreateUserDialog extends JDialog {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new CreateUserDialog().setVisible(true));
+        SwingUtilities.invokeLater(() -> new CreateUserDialog(null, null).setVisible(true));
     }
 }

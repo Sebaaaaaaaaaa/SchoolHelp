@@ -12,11 +12,13 @@ public class MyTicketsDialog extends JDialog {
 
     private Frame owner;
     private JTable table;
+    private final AccountModel account;
     
     public MyTicketsDialog(Frame owner, TicketService ticketService, AccountModel account) {
         super(owner, "School Help - My Tickets", true);
         
         this.owner = owner;
+        this.account = account;
         
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(700, 400);
@@ -96,7 +98,7 @@ public class MyTicketsDialog extends JDialog {
 
                 if (row != -1) {
                     TicketModel ticket = ((TechnicianTicketsTableModel) table.getModel()).getTicketAt(row);
-                    new TicketDetailDialog(this, ticket).setVisible(true);
+                    new TicketDetailDialog(this, ticket, account).setVisible(true);
                     ((TechnicianTicketsTableModel) table.getModel()).refresh();
                 } else {
                     JOptionPane.showMessageDialog(this, "Select a Ticket", "Selection Failed",

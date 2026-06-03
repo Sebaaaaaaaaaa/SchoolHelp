@@ -68,6 +68,8 @@ public class AdminDashboard extends JFrame {
         p.add(btn("Manage Users"));
         p.add(Box.createVerticalStrut(10));
         p.add(btn("View Statistics"));
+        p.add(Box.createVerticalStrut(10));
+        p.add(btn("Create User"));
         p.add(Box.createVerticalStrut(20));
         p.add(sep);
         p.add(Box.createVerticalStrut(10));
@@ -93,7 +95,11 @@ public class AdminDashboard extends JFrame {
             });
         } else if (t.equals("Manage Users")) {
             b.addActionListener(e -> {
-                new ManageUsersDialog(this, adminServices, account).setVisible(true);
+                new ManageUsersDialog(this, adminServices, ticketService, account).setVisible(true);
+            });
+        } else if (t.equals("Create User")) {
+            b.addActionListener(e -> {
+                new CreateUserDialog(this, adminServices).setVisible(true);
             });
         } else {
             b.addActionListener(e -> {

@@ -3,6 +3,7 @@ package GUI.User;
 import ApplicationServices.TicketService;
 import DataModels.AccountModel;
 import DataModels.TicketModel;
+import GUI.ChatDialog;
 import Utils.TicketStates;
 
 import java.awt.*;
@@ -136,32 +137,12 @@ public class OpenedTicketsDialog extends JDialog{
         actionBtns.setLayout(new BoxLayout(actionBtns, BoxLayout.Y_AXIS));
         actionBtns.setBackground(Color.WHITE);
         
-        JButton commentBtn = btn("Add Comment", new Color(0, 120, 215));
+        JButton commentBtn = btn("Open Chat", new Color(0, 120, 215));
         commentBtn.addActionListener(e -> {
-            AddCommentDialog addCommentFrame = new AddCommentDialog(Integer.toString(ticket.getTicketId()));
-            addCommentFrame.setVisible(true);
+            new ChatDialog(this, account, ticket.getMessages()).setVisible(true);
         });
         actionBtns.add(commentBtn);
         actionBtns.add(Box.createVerticalStrut(8));
-
-        /*
-        JButton closeBtn = btn("Close Ticket", new Color(200, 50, 50));
-        closeBtn.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(
-                    this,
-                    "Are you sure you want to close this ticket?",
-                    "Close Ticket Confirmation",
-                    JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                ticket.setState(TicketStates.CLOSED);
-                JOptionPane.showMessageDialog(this, "Ticket closed successfully!", "Success",
-                        JOptionPane.INFORMATION_MESSAGE);
-                dispose();
-                //new OpenedTicketsFrame().setVisible(true);
-            }
-        });
-        actionBtns.add(closeBtn);
-        actionBtns.add(Box.createVerticalStrut(8));*/
         
         if (!ticket.isOpen()) {
             JButton feedbackBtn = btn("Give Feedback", new Color(100, 180, 100));

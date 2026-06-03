@@ -1,4 +1,4 @@
-package GUI.User;
+package GUI;
 
 import ApplicationServices.AdministrationService;
 import Utils.AuthenticationUtil;
@@ -12,10 +12,10 @@ public class LoginFrame extends JFrame {
     private final TicketService ticketService;
     private final AdministrationService administrationService;
 
-    public LoginFrame() {
+    public LoginFrame(TicketService ticketService, AdministrationService adminService) {
         
-        this.ticketService = new TicketService();
-        this.administrationService = new AdministrationService();
+        this.ticketService = ticketService;
+        this.administrationService = adminService;
         
         setTitle("School Help - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -117,6 +117,6 @@ public class LoginFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> new LoginFrame(null, null).setVisible(true));
     }
 }

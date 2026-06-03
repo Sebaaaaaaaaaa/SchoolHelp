@@ -1,8 +1,10 @@
 package GUI.Technician;
 
+import DataModels.AccountModel;
 import DataModels.FeedbackModel;
 import DataModels.InternalNoteModel;
 import DataModels.TicketModel;
+import GUI.ChatDialog;
 import Utils.PriorityLevels;
 import Utils.TicketStates;
 
@@ -14,12 +16,14 @@ public class TicketDetailDialog extends JDialog {
     private final JDialog owner;
     private final TicketModel selectedTicket;
     private final JComboBox<TicketStates> status;
+    private final AccountModel account;
     private JTextArea note;
 
-    public TicketDetailDialog(JDialog owner, TicketModel selectedTicket) {
+    public TicketDetailDialog(JDialog owner, TicketModel selectedTicket, AccountModel account) {
         super(owner, "School Help - Ticket " + selectedTicket.getTicketId(), true);
         
         this.owner = owner;
+        this.account = account;
         this.selectedTicket = selectedTicket;
         
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -80,23 +84,6 @@ public class TicketDetailDialog extends JDialog {
         status.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         status.setAlignmentX(LEFT_ALIGNMENT);
         p.add(status);
-
-        p.add(Box.createVerticalStrut(20));
-        p.add(sep());
-        p.add(Box.createVerticalStrut(15));
-        p.add(italic("Add public comment (visible to user!)"));
-        p.add(Box.createVerticalStrut(5));
-
-        JTextArea pub = new JTextArea(3, 0);
-        pub.setLineWrap(true);
-        pub.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        pub.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        JScrollPane ps = new JScrollPane(pub);
-        ps.setAlignmentX(LEFT_ALIGNMENT);
-        ps.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
-        ps.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
-        p.add(ps);
         
         InternalNoteModel internalNote = selectedTicket.getInternalNote();
 
@@ -146,6 +133,7 @@ public class TicketDetailDialog extends JDialog {
         btns.setAlignmentX(LEFT_ALIGNMENT);
         btns.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         btns.add(btn("Save Changes", new Color(0, 120, 215)));
+        btns.add(btn("Open Chat", new Color(0, 170, 90)));
         btns.add(btn("Back", new Color(150, 150, 150)));
         p.add(btns);
 
@@ -248,6 +236,10 @@ public class TicketDetailDialog extends JDialog {
                 owner.setVisible(true);
                 dispose();
             });
+        } else if (t.equals("Open Chat")) {
+            b.addActionListener(e -> {
+                new ChatDialog(this, account, selectedTicket.getMessages()).setVisible(true);
+            });
         } else {
             b.addActionListener(e -> {
                 owner.setVisible(true);
@@ -285,7 +277,7 @@ public class TicketDetailDialog extends JDialog {
                 "The workstation in room 5 cannot access the network.",
                 PriorityLevels.HIGH,
                 null
-            ));
+            ), null);
             dialog.setVisible(true);
         });
     }

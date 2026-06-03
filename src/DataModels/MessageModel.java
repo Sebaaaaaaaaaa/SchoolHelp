@@ -8,18 +8,14 @@ public class MessageModel {
     private static int NEXT_ID = 0;
     
     private final int messageId;
-    private final TicketModel ticket;
     private final AccountModel sender;
-    private final AccountModel receiver;
     private final String content;
     private final String timestamp;
 
-    public MessageModel(TicketModel ticket, AccountModel sender, AccountModel receiver, String content, String timestamp) {
+    public MessageModel(AccountModel sender, String content) {
         this.messageId =  NEXT_ID;
         NEXT_ID++;
-        this.ticket = ticket;
         this.sender = sender;
-        this.receiver = receiver;
         this.content = content;
         
         Date now = new Date();
@@ -32,16 +28,8 @@ public class MessageModel {
         return messageId;
     }
 
-    public TicketModel getTicket() {
-        return ticket;
-    }
-
     public AccountModel getSender() {
         return sender;
-    }
-
-    public AccountModel getReceiver() {
-        return receiver;
     }
 
     public String getContent() {

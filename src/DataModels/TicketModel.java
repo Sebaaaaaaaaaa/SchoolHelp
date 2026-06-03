@@ -100,4 +100,8 @@ public class TicketModel {
     public void setPriority(PriorityLevels priority) {
         this.priority = priority;
     }
+
+    public List<MessageModel> getMessages() {
+        return messages;
+    }
 }

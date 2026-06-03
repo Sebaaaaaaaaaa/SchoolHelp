@@ -15,7 +15,7 @@ public class UsersListModel extends DefaultListModel<String> {
         }
     }
 
-    public AccountModel getTicketAt(int index) {
+    public AccountModel getUserAt(int index) {
         return users.get(index);
     }
 }

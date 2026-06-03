@@ -1,9 +1,10 @@
 package GUI.Admin;
 
 import ApplicationServices.AdministrationService;
+import ApplicationServices.TicketService;
 import DataModels.AccountModel;
 import DataModels.UsersListModel;
-import GUI.User.LoginFrame;
+import GUI.LoginFrame;
 import Utils.AccountRoles;
 import java.awt.*;
 import javax.swing.*;
@@ -11,19 +12,21 @@ import javax.swing.*;
 public class ManageUsersDialog extends JDialog {
     
     private final JFrame owner;
-    private final AdministrationService adminServices;
+    private final AdministrationService adminService;
+    private final TicketService ticketService;
     private AccountModel selectedUser;
     private JComboBox<AccountRoles> perm;
-    private JPasswordField pass;
+    private JTextField pass;
     private JTextField user;
     private final JList<String> list;
     private final AccountModel account;
 
-    public ManageUsersDialog(JFrame owner, AdministrationService adminServices, AccountModel account) {
+    public ManageUsersDialog(JFrame owner, AdministrationService adminService, TicketService ticketService, AccountModel account) {
         super(owner, "School Help - Manage Users", true);
         
         this.owner = owner;
-        this.adminServices = adminServices;
+        this.adminService = adminService;
+        this.ticketService = ticketService;
         this.selectedUser = null;
         this.account = account;
         
@@ -56,7 +59,8 @@ public class ManageUsersDialog extends JDialog {
         form.setBackground(Color.WHITE);
         
         form.add(lbl("Username")); form.add(Box.createVerticalStrut(5));
-        user = new JTextField(); 
+        user = new JTextField();
+        user.setEditable(false);
         user.setMaximumSize(new Dimension(Integer.MAX_VALUE,36)); 
         user.setAlignmentX(LEFT_ALIGNMENT); 
         user.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -65,7 +69,8 @@ public class ManageUsersDialog extends JDialog {
         form.add(Box.createVerticalStrut(10));
         
         form.add(lbl("Password")); form.add(Box.createVerticalStrut(5));
-        pass = new JPasswordField(); 
+        pass = new JTextField();
+        pass.setEditable(false);
         pass.setMaximumSize(new Dimension(Integer.MAX_VALUE,36)); 
         pass.setAlignmentX(LEFT_ALIGNMENT); 
         pass.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -82,15 +87,17 @@ public class ManageUsersDialog extends JDialog {
         perm.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         form.add(perm);
 
-        list = new JList<>(new UsersListModel(adminServices.getUsers()));
+        list = new JList<>(new UsersListModel(adminService.getUsers()));
         list.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int row = list.getSelectedIndex();
                 
                 if (row > -1) {
-                    selectedUser = ((UsersListModel) list.getModel()).getTicketAt(row);
-
+                    selectedUser = ((UsersListModel) list.getModel()).getUserAt(row);
+                    
+                    user.setEditable(true);
                     user.setText(selectedUser.getUsername());
+                    pass.setEditable(true);
                     pass.setText(selectedUser.getPassword());
 
                     perm.setEnabled(true);
@@ -149,14 +156,14 @@ public class ManageUsersDialog extends JDialog {
                     selectedUser.setPassword(pass.getText());  
                     selectedUser.setRole((AccountRoles) perm.getSelectedItem());
                     
-                    list.setModel(new UsersListModel(adminServices.getUsers()));
+                    list.setModel(new UsersListModel(adminService.getUsers()));
                     
                     JOptionPane.showMessageDialog(this,
                         "Updated successfully!",
                         "Success", JOptionPane.INFORMATION_MESSAGE);
                     
-                    if (selectedUser == account) {
-                        new LoginFrame().setVisible(true);
+                    if (selectedUser.getAccountId() == account.getAccountId()) {
+                        new LoginFrame(ticketService, adminService).setVisible(true);
                         dispose();
                     }
                 } else {
@@ -174,7 +181,7 @@ public class ManageUsersDialog extends JDialog {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ManageUsersDialog(null, null, null).setVisible(true));
+        SwingUtilities.invokeLater(() -> new ManageUsersDialog(null, null, null, null).setVisible(true));
     }
 }
 
