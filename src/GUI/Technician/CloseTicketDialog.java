@@ -1,13 +1,17 @@
 package GUI.Technician;
 
+import DataModels.TicketModel;
 import java.awt.*;
 import javax.swing.*;
 
-@Deprecated
 public class CloseTicketDialog extends JDialog {
+    
+    private TicketModel ticket;
 
-    public CloseTicketDialog(Frame owner) {
+    public CloseTicketDialog(JDialog owner, TicketModel ticket) {
         super(owner, "School Help - Close Ticket", true);
+        
+        this.ticket = ticket;
 
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         setSize(400, 320);
@@ -55,8 +59,7 @@ public class CloseTicketDialog extends JDialog {
         btns.setAlignmentX(LEFT_ALIGNMENT);
         btns.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        btns.add(btn("Close Ticket", new Color(0, 120, 215)));
-        btns.add(btn("Cancel", new Color(150, 150, 150)));
+        btns.add(btn("Close Ticket", new Color(0, 120, 215), area.getText()));
 
         JLabel footer = new JLabel("Laboratory: MULTI 2");
         footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
@@ -78,7 +81,7 @@ public class CloseTicketDialog extends JDialog {
         add(p);
     }
 
-    private JButton btn(String t, Color bg) {
+    private JButton btn(String t, Color bg, String closingReason) {
         JButton b = new JButton(t);
         b.setFont(new Font("Segoe UI", Font.BOLD, 14));
         b.setBackground(bg);
@@ -86,12 +89,21 @@ public class CloseTicketDialog extends JDialog {
         b.setFocusPainted(false);
         b.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        b.addActionListener(e -> {
+            ticket.setClosingReason(closingReason);
+            
+            JOptionPane.showMessageDialog(this,
+                "Closed successfully!",
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+            dispose();
+        });
         return b;
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            CloseTicketDialog dialog = new CloseTicketDialog(null);
+            CloseTicketDialog dialog = new CloseTicketDialog(null, null);
             dialog.setVisible(true);
         });
     }

@@ -58,7 +58,7 @@ public class TicketService {
     public List<TicketModel> getTicketsByUser(AccountModel user) {
         List<TicketModel> userTickets = new ArrayList<>();
         for (TicketModel ticket : tickets) {
-            if (ticket.getUserAccount() == user && ticket.getFeedback() == null) {
+            if (ticket.getUserAccount() == user && !(ticket.getFeedback() != null && !ticket.isOpen())) {
                 userTickets.add(ticket);
             }
         }

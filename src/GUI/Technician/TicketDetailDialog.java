@@ -219,6 +219,9 @@ public class TicketDetailDialog extends JDialog {
             b.addActionListener(e -> {
                 TicketStates selectedStatus = (TicketStates) status.getSelectedItem();
                 if (selectedStatus != selectedTicket.getState()) {
+                    if (selectedStatus == TicketStates.CLOSED) {
+                        new CloseTicketDialog(this, selectedTicket).setVisible(true);
+                    }
                     selectedTicket.setState(selectedStatus);
                 }
                 

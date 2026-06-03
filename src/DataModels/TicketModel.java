@@ -22,6 +22,8 @@ public class TicketModel {
     private FeedbackModel feedback;
     private InternalNoteModel internalNote;
     private final List<MessageModel> messages;
+    private String waitingReason;
+    private String closingReason;
 
     public TicketModel(String title, String description, PriorityLevels priority, AccountModel userAccount) {
         this.ticketId = NEXT_ID;
@@ -41,6 +43,8 @@ public class TicketModel {
         this.feedback = null;
         this.internalNote = null;
         this.messages = new ArrayList<>();
+        this.waitingReason = null;
+        this.closingReason = null;
     }
 
     public int getTicketId() {
@@ -103,5 +107,21 @@ public class TicketModel {
 
     public List<MessageModel> getMessages() {
         return messages;
+    }
+
+    public String getWaitingReason() {
+        return waitingReason;
+    }
+
+    public void setWaitingReason(String waitingReason) {
+        this.waitingReason = waitingReason;
+    }
+
+    public String getClosingReason() {
+        return closingReason;
+    }
+
+    public void setClosingReason(String closingReason) {
+        this.closingReason = closingReason;
     }
 }
